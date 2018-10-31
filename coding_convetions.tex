@@ -1,0 +1,431 @@
+\chapter{Coding conventions} 
+\label{app:coding}
+
+\section{References}
+
+This document contains coding conventions suggested for the
+software development for ANKE. To a large extend it follows some rules 
+which are available on the web from various collaborations, 
+notably CMS, ATLAS and LHCb. The major part refers to 
+LHCb note 2001-054 (Revised C++ Coding Conventions) by Olivier Callot.
+Coding conventions for ROOT and -- to some minor extent - GEANT4 are
+also taken into account.
+
+This is the second version of this document, taking into account the
+development work done during the last year.
+
+\section{Introduction}
+
+Software development in a collaboration implies that the result most be
+usable by many people. This likely means that people, who are not the original 
+authors, will have to maintain them one day. Therefore, a set of rules and
+conventions is necessary to insure a minimal coherence and consistency.
+
+In the best case rules are taken mandatory. However, since we will
+not have any automatic procedure to check them, {\bf all} people
+contributing to the software are responsible to follow them. 
+As in many other areas of a collaboration, we must be able to rely on 
+the goodwill of all contributors, who are working for the success of 
+the overall project.
+
+In addition, some of the rules are subject to strong personal views, 
+in particular the coding style, as this reflects aesthetic judgements 
+and are based on personal experience. Here, common sense should be used and 
+everyone should try to follow the majority's views. However, reasonable 
+exceptions are possible. 
+
+\section{Organisation}
+
+The exact layout of the \rs\ software has not been decided yet. The
+modules may be redistribute to different packages and dependencies
+between the packages will be resolved to some extent. The current
+status reflects the first guesses at the start of the project.
+Therefore, only some major points are addressed here.
+
+The term {\bf package} describes a set of modules, which have a
+particular topic in common and are put in one single library.
+The term {\bf module} describes the subsets of a package. A
+module is represented by a header/implementation file combination,
+which in most cases contains a single class. 
+
+\begin{itemize}
+\item[\bf O1] 
+  The \rs\ code is maintained in CVS and can be accessed as described in 
+  section~\ref{sec:start}. The CVS module is {\tt \rs}.
+\item[\bf O2]
+  The local configuration is done with help of the autoconf utility.
+  For regular packages this means that a minimal {\tt Makefile.in}
+  is sufficient, which contains only a {\tt PACKAGE = name} and a
+  {\tt MODULES = \dots} statement. Details are discussed within this
+  guide.
+\item[\bf O3] 
+  If one has to write an own Makefile, a {\tt Makefile.in} should be
+  used in these cases, too. The top-level directory can be accessed
+  via the variable {\tt @abs\_top\_srcdir}, the preprocessor, compiler
+  and linker flags are represented by {\tt @CPPFLAGS@}, {\tt @CXXFLAGS@} 
+  and {\tt @LDFLAGS@},
+  respectively.
+\item[\bf O4] 
+  Each module has an {\bf unique name}, which should be written
+  such that {\bf each word starts with an initial capital letter}. The name
+  of the module is usually the name of the class it holds.
+\item[\bf O5] 
+  Each module is represented by a header file and an implementation 
+  file. There should be no other ``.'' in the filename than to separate the
+  extension due to portability reasons.
+\item[\bf O6] 
+  C++ include (header) files should have the extension ``.hh'' and
+  C++ implementation files should have the extension ``.cc''.
+\item[\bf O7]
+  All header files are automatically copied into the {\tt RootSorter/inc} 
+  directory during a {\tt make} run.
+\item[\bf O8] 
+  One of the first lines of every file should contain the CVS {\bf \$\,Id:\$}
+  macro, which CVS translates into some version information.
+\item[\bf O9] 
+  For including standard files, use {\tt \#include $<$filename$>$}.
+  For user files, use {\tt \#include "FileName.hh"}.\\
+  {\em Never use a path for include files.}
+\end{itemize}
+
+\section{Naming conventions}
+
+Naming is something difficult to check by an automated tool and everybody has
+his or her own feeling of what is a good name for an entity. However, one
+should follow some guidelines, so that everyone understands what sort of
+entity is behind the name.
+
+\begin{itemize}
+\item[\bf N1] Names should be {\bf meaningful}, but not {\bf too} long. 
+  Statements should stay readable!
+\item[\bf N2] Names are usually made of several words, written together
+  {\bf without underscores}, each first letter of a word being {\bf uppercase}.
+  The case of the first letter is specified by other rules, but it is
+  usually lowercase. Don't use special characters. {\bf Only alphanumeric 
+  characters are allowed.}\\
+  Example: {\tt upperStopTime}
+\item[\bf N3] Names are case sensitive. However, do {\bf not} create names
+  that differ only by the case.\\
+  Example: {\tt track, Track, TRACK}
+\item[\bf N4] Avoid single character or meaningless names like ``jj'' except
+  for local loops or local array indices.
+\item[\bf N5] {\bf Class} names must be {\bf nouns} or {\bf noun phrases}. 
+  The first letter is capital.
+\item[\bf N6] {\bf Data member} names should be private variables and start
+  with ``f'' followed by an uppercase letter.\\
+  - Protected variables may be used for base classes.\\
+  - Never use public data members. Use accessor functions instead.
+\item[\bf N7] {\bf Static variables} should start with ``g'' followed by
+  an uppercase letter to distinguish them clearly.
+\item[\bf N8] {\bf Avoid global variables.} Their function is better
+  replaced by a class with mainly accessor methods. {\bf Avoid global
+  functions and operators.} The only case where you can use them are
+  symmetric binary operators and mathematical functions.\\
+  If you cannot avoid a global variable, the name should start with ``g''
+  followed by an uppercase letter.
+\item[\bf N9] {\bf Constants} should start with ``k'' followed by a capital 
+  letter.
+\item[\bf N10] {\bf Member functions} should start with a capital letter.
+\item[\bf N11] {\bf Accessor functions} are named from the variable they
+  control without ``f'' or ``g'' and prefixed by ``Set'' and ``Get':\\
+  {\tt SetMomentum(momentum);   // set the value of fMomentum \\
+       GetMomentum();           // get the value }\\
+  The ``Get'' should be omitted by functions which return a non-const
+  reference to indicate that this can also be used as a lvalue.
+\item[\bf N12] Other functions must be {\bf verb} or {\bf verb phrases}.
+\item[\bf N13] A function which creates an object and passes the responsibility
+  of deleting to the caller should start with the verb {\tt Create}. The
+  return value must be a pointer to the created object.\\
+  If the object management remains in the class, the access should be done
+  using normal accessor functions. If the user wants to indicate that a
+  new object has to be created, the function should start with {\tt GetNew}.
+\item[\bf N14] A function that passes the responsibility of deleting an
+  object to the caller should start with {\tt Take}.
+\item[\bf N15] A function that copies an object should start with {\tt Copy}.
+\item[\bf N16] A function that passes the responsibility of deleting an
+  object to the class should start with {\tt Adopt}. For functions which cannot
+  follow that rule (e.g. constructors), the argument should contain the
+  word {\tt adopt}.
+\item[\bf N17] A function which deletes objects on demand should start with
+  {\tt Delete}.
+\end{itemize}
+
+\section{Header files}
+
+Header files with extension ``.hh'' contain the description of the class.
+They may contain some implementation, but only in the case of the inline
+code. The rest of the code is in the implementation file (``.cc''). The
+general documentation of the class and the interfacing should be in
+the header file.
+
+\begin{itemize}
+\item[\bf H1] A header file should contain the definition of a {\bf single
+    class}. In case of nested classes both can be in the same file.
+\item[\bf H2] Every header file contains {\bf a mechanism to prevent multiple
+    inclusion}. The file ``IncludeFile.hh'' starts and ends by the 
+    following lines:%
+    \begin{verbatim}
+#ifndef _INCLUDEFILE_HH_
+#define _INCLUDEFILE_HH_
+
+// Here comes the code
+
+#endif // _INCLUDEFILE_HH_
+    \end{verbatim}
+\item[\bf H3] One should avoid the number of header files included to avoid 
+  too complex dependencies. In particular, if one uses a pointer or reference 
+  to a class, one can just do a {\bf forward declaration} without including
+  the class header file:
+  \begin{verbatim}
+class Line;  // forward declaration, this is enough
+class Point {
+public:
+  Number CalcDistance(const Line &line) const;
+};
+  \end{verbatim}
+\item[\bf H4] The class declaration starts with the ``public'' members
+  first including the constructors and destructor. Then the ``protected''
+  and the ``private'' sections follow.
+\item[\bf H5] Header files should not have any method bodies inside the
+  class definition. {\bf The {\tt inline} functions usually should go to
+  the end of the file after the class definition.} However, one could put
+  {\bf a very simple accessor on the declaration line}.\\
+  Inline functions should {\bf not at all} call something external to the
+  class.
+\end{itemize}
+
+\section{Implementation files}
+
+The implementation files contain the non-trivial member functions. They
+should hold the definition of a single class, they may contain auxiliary
+(private) classes if needed.
+
+\begin{itemize}
+\item[\bf I1] {\bf A constructor must initialise all variables and internal
+  objects.}
+\item[\bf I2] {\bf A copy constructor is mandatory, together with an assignment
+  operator, if a class has built-in pointer member data.}
+  \begin{verbatim}
+class Line {
+  public:
+    Line (const Line&); // copy constructor
+    Line &operator= (const Line&); // assignment operator
+};
+  \end{verbatim}
+  Note that the arguments should be {\tt const references}. If you want to
+  prevent copy and/or assignment, you should provide a {\tt private} 
+  declaration of the copy and assignment constructors. The object can no
+  longer be copied.\\
+  To behave as expected, the assignment operator functions should always 
+  return a reference to their left operand.
+\item[\bf I3] It must be guaranteed that assignment member functions work 
+  correctly when the left and right operands are the same object. 
+\item[\bf I4] {\bf Declare a ``virtual'' destructor for every class.}
+  \begin{verbatim}
+class Line {
+  public:
+    virtual ~Line();  // virtual destructor
+};
+  \end{verbatim}
+\item[\bf I5] Virtual functions should be re-declared ``virtual'' in derived
+  classes, just for clarity and to avoid mistakes when deriving a class from
+  a derived class ...
+\item[\bf I6] Objects should always be created in a valid, ready-to-use state 
+  and should not have an `open' function which must be called
+  before they can be used or a `close' functions before they are deleted.
+  The constructor and destructor should carry out those operations.
+\item[\bf I7] Single argument non-converting constructors should use 
+  the {\tt explict} keyword.\\
+  This is to avoid possible confusing behaviour with assignments. A 
+  non-converting constructor constructs objects just as converting 
+  constructors, but does so only where a constructor call is explicitly 
+  indicated by the syntax. For example with the definition of the 
+  constructors for Z 
+  \begin{verbatim}
+class Z {
+  public:
+  explicit Z(int);
+  // ...
+};
+  \end{verbatim}
+  the following assignment would be illegal: 
+  \begin{verbatim}
+Z a1 = 1;
+  \end{verbatim}
+  however 
+  \begin{verbatim}
+Z a1(1);    
+  \end{verbatim}
+  would work, as would: 
+  \begin{verbatim}
+Z a1 = Z(1);
+Z* p = new Z(1);
+  \end{verbatim} 
+\item[\bf I8] {\bf Give operators conventional definitions.} For example, 
+  if you define the {\tt operator+}, then it should do something like addition.
+
+\end{itemize}
+
+\section{Member functions and arguments}
+\begin{itemize}
+\item[\bf M1] Functions without side effects are by far better. {\bf The use
+  of the ``const'' specifier is strongly encouraged} to make clear that a
+  function doesn't change the object or that the arguments are not changed.
+  \begin{verbatim}
+class Point {
+  public:
+    Number CalcDistance(const Line& line) const;
+    void Translate(const Vector& vector);
+};
+  \end{verbatim}
+  The {\tt CalcDistance} function has a {\tt const} argument, as the line is
+  not modified, and is {\tt const} as the point is not affected. The
+  {\tt Translate} method is also not affecting its argument, but the object
+  itself is modified.
+\item[\bf M2] {\bf Pass objects by constant reference.} Passing by value is
+  only acceptable for small objects and basic types.
+\item[\bf M3] The use of default arguments is strongly discouraged.
+\item[\bf M4] {\bf Do not declare functions with unspecified (``...'') 
+  arguments.}
+\item[\bf M5] {\bf The returned value of a function should always be tested.}
+  A function that does not have a {\tt void} type should always return a
+  {\bf meaningful value}.
+\item[\bf M6] The exception mechanism should be used only to trap unusual
+  problems.
+\end{itemize}
+
+\section{Coding style}
+
+This area is usually the most debated as some aesthetic considerations are
+involved. There are sometimes also ``religious'' issues, because there is no
+way to convince each other that this is better than that. It's only something
+one can believe, but can't prove!
+
+But, nevertheless, it is important to try to get a similar look for an easier
+code maintenance. Most code writers will be replaced during the lifetime of
+the detector and the source code.
+
+\subsection{General layout}
+\begin{itemize}
+\item[\bf C1] The length of any line should be normally limited to 80 characters
+  and never exceed 100 characters.
+\item[\bf C2] Each block should be indented by two spaces. It starts by an opening
+  brace on the line of the control statement and ends by an closing brace alone
+  on its line. In case of longer or nested blocks a comment indicating which 
+  block is closed should follow the closing brace.\\
+  Single line statements should only be used if the block contains only
+  one statement:\\
+  {\tt if (x>1.) x=1.;}
+\item[\bf C3] When declaring a function with non-trivial arguments, try to
+  put one argument per line. This allows inline comments.
+\end{itemize}
+
+\subsection{Comments}
+\begin{itemize}
+\item[\bf C4] Use the header files to give a detailed documentation for 
+  purpose and usage of each class.
+\item[\bf C5] Comments in the code should be short and clear. They have to
+  clearify the understanding of the code, they should not repeat the code.
+\item[\bf C6] The comments should be in a form that DOXYGEN can read it for
+  automatic documentation.\\
+  {\rm Note: This has to be discussed in detail.}
+\end{itemize}
+
+\subsection{How to write safer code}
+\begin{itemize}
+\item[\bf C7] {\bf Comparison between a variable and a constant should have
+  the constant first.} The compiler will then spot it if you forgot one of
+  the equal signs! {\tt (variable = 1)} is a valid statement, 
+  {\tt (1 = variable)} not!
+\item[\bf C8] If you are doing an assignment within a comparison, make it
+  explicit by using parenthesis.
+\item[\bf C9] {\bf Comparison between floating point values should never test
+  for equality.} Instead test whether the difference is smaller than an
+  appropriate small number.
+\item[\bf C10] To test that a pointer is valid, compare it to the value zero.
+  Do not treat it as having a boolean value!
+\item[\bf C11] In {\tt switch} statements {\bf each choice must have either
+  a closing {\tt break}} or an explicit comment, that the fall-through is
+  the desired behaviour.
+\item[\bf C12] {\bf Constants must not be defined by {\tt \#define} preprocessor
+  statements.} One should use {\tt enum} for integer or {\tt const} declarations.
+  The best way is to put them inside a {\tt namespace} block to avoid
+  naming conflicts:
+  \begin{verbatim}
+namespace CaloName {
+  static const unsigned int kNBits = 6;
+}
+  \end{verbatim}
+  and use them like:
+  \begin{verbatim}
+if (CaloName::kNBits == variable) { ... }
+  \end{verbatim}
+\item[\bf C13] {\bf Use inlines instead of function macros.} Don't use 
+  function macros; they are problematic. Instead, declare the functions 
+  inline to obviate the need for function macros.
+  Like const, inline functions follow the C++ scope rules and allow argument 
+  type-checking. Both member functions and nonmember functions can be 
+  declared inline. Consider this classic example:
+  \begin{verbatim}
+#define SQUARE(x) ((x)*(x))
+         
+// and...
+         
+SQUARE(y++);        // y incremented twice
+  \end{verbatim}
+  When written as an inline, it is actually more efficient than the macro 
+  version. What's more, it's correct.
+  \begin{verbatim}
+inline int Square(int x) {
+  return x*x;
+};
+         
+Square(y++);        // y incremented once
+  \end{verbatim}
+\item[\bf C14] Re-use existing classes. {\bf STL should be exploited.} Old
+  C habits should be changed ...
+  \begin{itemize}
+    \item Use {\tt std::string} instead of {\tt char*}.
+    \item Don't use built-in arrays. Use one of the STL containers like 
+          {\tt std::vector}.
+    \item Use standard classes line {\tt TVector3} rather than {\tt double v[3]}.
+    \item Do not use {\tt struct}, use a class to hold your data.
+    \item Do not use {\tt union} types.
+    \item Use {\tt bool} for logical values.
+  \end{itemize}
+\item[\bf C15] Avoid overloading operators unless there is a clear improvement
+  in the clarity of the code.
+\item[\bf C16] {\bf Avoid complicated implicit precedence rules}, use parenthesis
+  to clarify your wishes.
+\item[\bf C17] {\bf Use cast operators} for data-type conversion. You should use
+  {\tt static\_cast} or {\tt dynamic\_cast}, but not {\tt reinterpret\_cast} or
+  {\tt const\_cast}. The best is to provide the appropriate cast operator inside
+  the class.
+\item[\bf C18] {\bf All C++ entities should be defined only in the smallest
+    scope needed.} Although there is a problem of inconsistency between some
+  compilers, the use of\\
+  {\tt for (int j=0; 10<j; j++) \{ ... \}}\\
+  is recommended.
+\item[\bf C19] A function must not use the delete operator to any pointer
+  passed to it as argument. 
+\item[\bf C20] Use {\tt new} and {\tt delete} in place of {\tt malloc()} and
+  {\tt free()}.
+\item[\bf C21] Any pointer to automatic objects should have the same or a
+  smaller scope than the object it points to.
+\item[\bf C22] Just to mention it: Don't use {\tt goto} ;-).
+\end{itemize}
+
+\section{\rs\ specific rules}
+
+This points mentioned here are related to the \rs\ software.
+
+\begin{itemize}
+\item[\bf A1] Do not use C++ standard streams. Include {\tt CLog.hh} and use
+  {\tt\bf gScreen} and {\bf\tt gLog} instead.
+\item[\bf A2] If an index refers to a detector or any other countable, physical
+  object (like wires), the index should start at 1.
+\item[\bf A3] For data storage, \root\ containers should be prefered. To allow
+ access to such a container in your data object, offer the number
+ of entries ({\tt GetXXXEntries()}) and the container itself
+({\tt GetXXX()}). Avoid to implement index operators by yourself.
+\end{itemize}
