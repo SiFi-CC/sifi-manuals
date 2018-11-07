@@ -97,6 +97,9 @@ which in most cases contains a single class.
   For including standard files, use {\tt \#include $<$filename$>$}.
   For user files, use {\tt \#include "FileName.hh"}.\\
   There is no need to give absolute or relative paths for include files.
+\item[\bf O8]
+  The default C++ standard for all the code is {\tt c++11x}. The toolchain will
+  be defined with {\tt -std=c++11 }.
 \end{itemize}
 
 \section{Naming conventions}
@@ -483,6 +486,8 @@ Square(y++);        // y incremented once
 \item[\bf C21] Any pointer to automatic objects should have the same or a
   smaller scope than the object it points to.
 \item[\bf C22] Just to mention it: Don't use {\tt goto} ;-).
+\item[\bf C23] Always test returned values from functions if warn\_unused
+    warning arise.
 \end{itemize}
 
 \section{Documenting code}
