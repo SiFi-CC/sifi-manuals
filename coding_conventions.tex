@@ -8,7 +8,10 @@
 \usepackage{hyperref}
 
 \newcommand{\sificc}{SiFi-CC\xspace}
-\title{Coding conventions}
+\title{Coding conventions for \sificc\ framework}
+
+\author{\small revised for SiFi-CC by Rafał Lalik, Wojciech Kozyra, Aleksandra Wrońska\\
+\small Jagiellonian University in Kraków}
 
 \begin{document}
 
@@ -17,7 +20,8 @@
 \section{References}
 
 This document contains coding conventions suggested for the
-software development for ANKE. To a large extend it follows some rules
+software development for the ANKE experiment in J\"ulich, collected and revised by Volker Hejny.
+To a large extend it follows some rules
 which are available on the web from various collaborations,
 notably CMS, ATLAS and LHCb. The major part refers to
 LHCb note 2001-054 (Revised C++ Coding Conventions) by Olivier Callot.
@@ -92,7 +96,7 @@ which in most cases contains a single class.
 \item[\bf O7]
   For including standard files, use {\tt \#include $<$filename$>$}.
   For user files, use {\tt \#include "FileName.hh"}.\\
-  {\em Never use a path for include files.}
+  There is no need to give absolute or relative paths for include files.
 \end{itemize}
 
 \section{Naming conventions}
@@ -193,9 +197,11 @@ public:
   first including the constructors and destructor. Then the ``protected''
   and the ``private'' sections follow.
 \item[\bf H5] Header files should not have any method bodies inside the
-  class definition. {\bf The {\tt inline} functions usually should go to
-  the end of the file after the class definition.} However, one could put
-  {\bf a very simple accessor on the declaration line}.\\
+  class definition. 
+  The inline functions usually should go to
+  the end of the file after the class definition. However, one could put
+  {\bf a very simple accessor on the declaration line}. There is no need to 
+  use the {\tt inline} keyword.\\
   Inline functions should {\bf not at all} call something external to the
   class.
 \end{itemize}
@@ -219,9 +225,16 @@ class Line {
 };
   \end{verbatim}
   Note that the arguments should be {\tt const references}. If you want to
-  prevent copy and/or assignment, you should provide a {\tt private}
-  declaration of the copy and assignment constructors. The object can no
-  longer be copied.\\
+  prevent copy and/or assignment, you should provide one of the following:
+  \begin{enumerate}
+   \item explicite {\tt delete} keyword to copy constructor and assignment operator\\
+   \begin{verbatim}
+    Line(const Line&) = delete;
+    Line& operator=(const Line&) = delete;
+   \end{verbatim}
+   \item a {\tt private} declaration of the copy and assignment constructors.
+   The object can only be copied by its member and friend functions.
+  \end{enumerate}
   To behave as expected, the assignment operator functions should always
   return a reference to their left operand.
 \item[\bf I3] It must be guaranteed that assignment member functions work
@@ -235,7 +248,7 @@ class Line {
   \end{verbatim}
 \item[\bf I5] Virtual functions should be re-declared ``virtual'' in derived
   classes, just for clarity and to avoid mistakes when deriving a class from
-  a derived class ...
+  a derived class. In derived classes use the {\tt override} keyword.
 \item[\bf I6] Objects should always be created in a valid, ready-to-use state
   and should not have an `open' function which must be called
   before they can be used or a `close' functions before they are deleted.
@@ -289,7 +302,7 @@ class Point {
   {\tt Translate} method is also not affecting its argument, but the object
   itself is modified.
 \item[\bf M2] {\bf Pass objects by constant reference.} Passing by value is
-  only acceptable for basic types.
+  only acceptable for basic types and pointers.
 \item[\bf M3] The use of default arguments is strongly discouraged.
 \item[\bf M4] {\bf Do not declare functions with unspecified (``...'')
   arguments.}
@@ -417,8 +430,8 @@ namespace CaloName {
   \begin{verbatim}
 if (CaloName::kNBits == variable) { ... }
   \end{verbatim}
-\item[\bf C13] {\bf Use inlines instead of function macros.} Don't use
-  function macros; they are problematic. Instead, declare the functions
+\item[\bf C13] {\bf Use inlines instead of function macros.} {\bf Don't use
+  function macros}, they are problematic. Instead, declare the functions
   inline to obviate the need for function macros.
   Like const, inline functions follow the C++ scope rules and allow argument
   type-checking. Both member functions and nonmember functions can be
@@ -442,13 +455,13 @@ Square(y++);        // y incremented once
 \item[\bf C14] Re-use existing classes. {\bf STL should be exploited.} Old
   C habits should be changed ...
   \begin{itemize}
-    \item Use {\tt std::string} instead of {\tt char*}.
+    \item Use root types for all class members and arguments of methods.
+    \item Use {\tt std::string} or {\tt TString} instead of {\tt char*}.
     \item Don't use built-in arrays. Use one of the STL containers like
           {\tt std::vector}.
     \item Use standard classes line {\tt TVector3} rather than {\tt double v[3]}.
-    \item Do not use {\tt struct}, use a class to hold your data.
     \item Do not use {\tt union} types.
-    \item Use {\tt bool} for logical values.
+    \item Use {\tt Bool\_t} for logical values.
   \end{itemize}
 \item[\bf C15] Avoid overloading operators unless there is a clear improvement
   in the clarity of the code.
@@ -495,6 +508,7 @@ Square(y++);        // y incremented once
  */
 int foo(float bar) { return 13; }
     \end{verbatim}
+    Class members must also be documented.
   \item[\bf D3] If desired, use {\tt \textbackslash{}sa} to point to other
     methods in the documentation.
   \item[\bf D4] For details about documenting the code refer to the Doxygen
