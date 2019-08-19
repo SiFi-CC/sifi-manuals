@@ -24,11 +24,16 @@ is why we can put it just in the project root directory. Then invoke format with
 Without `-i` option program will return to stdout the formatted code, with `-i`
 it will update file in place.
 
+If you wish to reformat all the files in the directory, run
+
+    find . \( -iname "*.hh" -or -iname "*.cc" -or -iname "*.C" \) -exec clang-format --style=file -i {} \;
+
+
 ### 2. When using KDevelop IDE
 
  1. Copy `format_source` to root directory of your project.
  2. Open Project Options and choose Source Formatter. Select C++ language and
-    choose Custom Script Formatter and in the list select `kde_source_format`.
+    choose Custom Script Formatter and in the list select `kdev_format_source`.
  3. The source formatting can be invoked by Edit->Reformat Source. It is
     suggested to assign a shortcut to the action, e.g. F2. Before each commit
     source should be reformatted.
